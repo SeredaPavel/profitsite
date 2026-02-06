@@ -1,6 +1,7 @@
 // src/components/landing/PricingSection.tsx
 import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import React from "react";
 
 const PRICING = [
   {
@@ -35,6 +36,124 @@ const PRICING = [
   },
 ];
 
+function PricingSlider() {
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const dragging = React.useRef(false);
+  const startX = React.useRef(0);
+  const startLeft = React.useRef(0);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    dragging.current = true;
+    startX.current = e.clientX;
+    startLeft.current = el.scrollLeft;
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el || !dragging.current) return;
+    const dx = e.clientX - startX.current;
+    el.scrollLeft = startLeft.current - dx;
+  };
+
+  const onPointerUp = () => {
+    dragging.current = false;
+  };
+
+  return (
+    <div
+      ref={ref}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      className="mt-8 flex gap-4 overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch] snap-x snap-mandatory"
+      style={{ scrollbarWidth: "none" }}
+    >
+      {PRICING.map((p) => (
+        <article
+          key={p.title}
+          className={[
+            "relative snap-start select-none",
+            "min-w-[320px] sm:min-w-[420px] lg:min-w-[520px]",
+            "rounded-3xl border border-foreground/10 bg-foreground/5",
+            "p-6 sm:p-8",
+            "transition",
+            "group",
+          ].join(" ")}
+        >
+          {/* Верхний ряд */}
+          <div className="flex items-start justify-between gap-6">
+            <div className="text-base sm:text-lg font-extrabold tracking-tight">
+              {p.title}
+            </div>
+
+            <div className="text-base sm:text-lg font-extrabold whitespace-nowrap">
+              {p.price}
+            </div>
+          </div>
+
+          {/* Описание */}
+          <p className="mt-4 text-sm sm:text-base leading-relaxed text-foreground/75 max-w-[52ch]">
+            {p.desc}
+          </p>
+
+          {/* CTA */}
+          <div className="mt-6">
+            <Button href="#next-step" variant="outline" className="w-full">
+              Обсудить этот вариант
+            </Button>
+          </div>
+
+          {/* Hover/Active overlay — как в блоке “Услуги” */}
+          <div
+            className={[
+              "pointer-events-none absolute inset-0 overflow-hidden rounded-3xl",
+              "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100",
+              "transition-opacity duration-300",
+            ].join(" ")}
+          >
+            <div className="absolute inset-0 bg-foreground" />
+            {/* дуга/полукруг */}
+            <div className="absolute -right-[280px] -top-[160px] h-[520px] w-[520px] rounded-full bg-background" />
+            {/* стрелка */}
+            <div className="absolute right-6 top-6 text-background">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Текст поверх overlay (чтобы читалось на тёмном) */}
+          <div className="pointer-events-none absolute inset-0 rounded-3xl p-6 sm:p-8 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
+            <div className="flex items-start justify-between gap-6">
+              <div className="text-base sm:text-lg font-extrabold tracking-tight text-background">
+                {p.title}
+              </div>
+              <div className="text-base sm:text-lg font-extrabold whitespace-nowrap text-background">
+                {p.price}
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm sm:text-base leading-relaxed text-background/80 max-w-[52ch]">
+              {p.desc}
+            </p>
+
+            <div className="mt-6">
+              <div className="rounded-2xl border border-background/20 bg-background/10 px-4 py-3 text-sm text-background/85">
+                Нажмите “Обсудить этот вариант” — уточним сроки, объем и интеграции.
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export default function PricingSection() {
   return (
     <section className="border-b border-foreground/10">
@@ -45,24 +164,10 @@ export default function PricingSection() {
             Прозрачная упаковка: выбираете формат — мы собираем решение под задачи.
           </p>
 
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PRICING.map((p) => (
-              <div
-                key={p.title}
-                className="rounded-2xl border border-foreground/12 bg-background p-6 transition hover:border-foreground/25"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="text-sm font-semibold">{p.title}</div>
-                  <div className="text-sm font-bold">{p.price}</div>
-                </div>
-                <div className="mt-3 text-sm text-foreground/70">{p.desc}</div>
-                <div className="mt-5">
-                  <Button href="#next-step" variant="outline" className="w-full">
-                    Обсудить этот вариант
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <PricingSlider />
+
+          <div className="mt-2 text-xs text-foreground/55">
+            Можно листать колесом/тачпадом или “тянуть” мышкой.
           </div>
         </div>
       </Container>
