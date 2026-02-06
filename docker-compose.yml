@@ -1,0 +1,36 @@
+# /docker-compose.yml
+version: "3.9"
+
+services:
+  profitsite-backend:
+    image: ghcr.io/OWNER/REPO/backend:latest
+    container_name: profitsite-backend
+    environment:
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+      - MAIL_TO=${MAIL_TO}
+      - SMTP_TLS=${SMTP_TLS}
+      - SMTP_STARTTLS=${SMTP_STARTTLS}
+    expose:
+      - "8000"
+    networks:
+      - edge
+
+  profitsite-frontend:
+    image: ghcr.io/OWNER/REPO/frontend:latest
+    container_name: profitsite-frontend
+    environment:
+      - NEXT_PUBLIC_API_BASE=/api
+    expose:
+      - "3000"
+    depends_on:
+      - profitsite-backend
+    networks:
+      - edge
+
+networks:
+  edge:
+    external: true
