@@ -1,8 +1,10 @@
 // src/components/landing/HeroSection.tsx
+"use client";
+
+import { useRef } from "react";
 import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import React from "react";
 
 const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = [
   {
@@ -147,10 +149,10 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
 ];
 
 function ServicesSlider() {
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const dragging = React.useRef(false);
-  const startX = React.useRef(0);
-  const startLeft = React.useRef(0);
+  const ref = useRef<HTMLDivElement | null>(null);
+  const dragging = useRef(false);
+  const startX = useRef(0);
+  const startLeft = useRef(0);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = ref.current;
