@@ -10,11 +10,28 @@ const base =
 
 const styles: Record<Variant, string> = {
   primary:
-    "bg-foreground text-background hover:opacity-90 focus-visible:ring-foreground",
+    [
+      "bg-foreground text-background",
+      "border border-transparent",
+      // инверсия при hover (как ты просил)
+      "hover:bg-background hover:text-foreground hover:border-foreground/30",
+      "focus-visible:ring-foreground",
+    ].join(" "),
   outline:
-    "border border-foreground/30 hover:border-foreground/60 hover:bg-foreground/5 focus-visible:ring-foreground",
+    [
+      "border border-foreground/30",
+      // инверсия при hover
+      "hover:bg-foreground hover:text-background hover:border-foreground",
+      "focus-visible:ring-foreground",
+    ].join(" "),
   ghost:
-    "hover:bg-foreground/5 focus-visible:ring-foreground",
+    [
+      // сохраняем “лёгкость”, но добавляем рамку и инверсию при hover,
+      // чтобы “Позвонить” тоже соответствовал твоему правилу
+      "border border-foreground/30",
+      "hover:bg-foreground hover:text-background hover:border-foreground",
+      "focus-visible:ring-foreground",
+    ].join(" "),
 };
 
 export function Button({
