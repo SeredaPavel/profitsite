@@ -1,23 +1,14 @@
 // src/components/landing/HeroSection.tsx
-"use client";
-
-import { useRef } from "react";
-import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
-const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = [
+const SERVICES = [
   {
     title: "Разработка сайтов",
     desc: "Собираем структуру, дизайн и реализацию под бизнес-цели.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-        <path
-          d="M4 6h16v12H4V6Z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
+        <path d="M4 6h16v12H4V6Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
         <path d="M7 9h6M7 12h10M7 15h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
@@ -41,22 +32,9 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
     desc: "Ускоряем загрузку, улучшаем UX и конверсию.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-        <path
-          d="M12 3a9 9 0 1 0 9 9"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M12 12l6-6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M12 12a2 2 0 1 0 0.001 0Z"
-          fill="currentColor"
-        />
+        <path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M12 12l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M12 12a2 2 0 1 0 0.001 0Z" fill="currentColor" />
       </svg>
     ),
   },
@@ -65,18 +43,8 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
     desc: "Автоматизация, ассистенты, обработка данных там, где есть эффект.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-        <path
-          d="M9 3v3M15 3v3M7 7h10M6 10v4a6 6 0 0 0 12 0v-4"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M9.5 13h.01M14.5 13h.01"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
+        <path d="M9 3v3M15 3v3M7 7h10M6 10v4a6 6 0 0 0 12 0v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M9.5 13h.01M14.5 13h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -85,11 +53,7 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
     desc: "Проектируем сценарии, прототипы и визуал под аудиторию.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-        <path
-          d="M4 4h8v8H4V4Zm10 0h6v6h-6V4ZM14 12h6v8h-6v-8ZM4 14h8v6H4v-6Z"
-          fill="currentColor"
-          opacity="0.9"
-        />
+        <path d="M4 4h8v8H4V4Zm10 0h6v6h-6V4ZM14 12h6v8h-6v-8ZM4 14h8v6H4v-6Z" fill="currentColor" opacity="0.9" />
       </svg>
     ),
   },
@@ -98,23 +62,9 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
     desc: "Подключаем сервисы, API, платежи, телефонию, склад и т.п.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-        <path
-          d="M7 7h4v4H7V7Zm6 6h4v4h-4v-4Z"
-          fill="currentColor"
-          opacity="0.9"
-        />
-        <path
-          d="M11 9h2a4 4 0 0 1 4 4v2"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M13 15h-2a4 4 0 0 1-4-4V9"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+        <path d="M7 7h4v4H7V7Zm6 6h4v4h-4v-4Z" fill="currentColor" opacity="0.9" />
+        <path d="M11 9h2a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M13 15h-2a4 4 0 0 1-4-4V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -123,17 +73,8 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
     desc: "Настраиваем воронки, заявки, статусы, интеграции и автоматизацию.",
     icon: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-        <path
-          d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM17 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-          fill="currentColor"
-          opacity="0.9"
-        />
-        <path
-          d="M3 20a4 4 0 0 1 8 0M13 20a4 4 0 0 1 8 0"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+        <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM17 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="currentColor" opacity="0.9" />
+        <path d="M3 20a4 4 0 0 1 8 0M13 20a4 4 0 0 1 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -148,104 +89,70 @@ const SERVICES: Array<{ title: string; desc: string; icon: React.ReactNode }> = 
   },
 ];
 
-function ServicesSlider() {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const dragging = useRef(false);
-  const startX = useRef(0);
-  const startLeft = useRef(0);
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    dragging.current = true;
-    startX.current = e.clientX;
-    startLeft.current = el.scrollLeft;
-    el.setPointerCapture(e.pointerId);
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el || !dragging.current) return;
-    const dx = e.clientX - startX.current;
-    el.scrollLeft = startLeft.current - dx;
-  };
-
-  const onPointerUp = () => {
-    dragging.current = false;
-  };
-
+function CurtainCard({
+  title,
+  desc,
+  icon,
+}: {
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+}) {
   return (
-    <div className="mt-8">
+    <article
+      className={[
+        "group relative overflow-hidden rounded-3xl",
+        "border border-foreground/10 bg-foreground/5",
+        "p-6 sm:p-7",
+      ].join(" ")}
+    >
+      {/* БАЗОВЫЙ (тёмный) КОНТЕНТ */}
+      <div className="relative z-10 transition-opacity duration-200 group-hover:opacity-0">
+        <div className="text-foreground/80">{icon}</div>
+        <div className="mt-4 text-xs text-foreground/60">Услуга</div>
+        <h3 className="mt-2 text-lg sm:text-xl font-extrabold tracking-tight">{title}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-foreground/75">{desc}</p>
+
+        <div className="pointer-events-none absolute right-6 top-6 opacity-80 transition-opacity group-hover:opacity-0">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
+            <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ШТОРА: стартует из правого верхнего угла и ПОЛНОСТЬЮ перекрывает карточку */}
       <div
-        ref={ref}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        className="flex gap-4 overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch] snap-x snap-mandatory"
-        style={{ scrollbarWidth: "none" }}
+        className={[
+          "pointer-events-none absolute inset-0 z-20",
+          "bg-foreground",
+          "origin-top-right",
+          "scale-0 group-hover:scale-100",
+          "transition-transform duration-500 ease-out",
+        ].join(" ")}
+      />
+
+      {/* HOVER-КОНТЕНТ (чтобы читалось на “шторе”) */}
+      <div
+        className={[
+          "pointer-events-none absolute inset-0 z-30 p-6 sm:p-7",
+          "opacity-0 group-hover:opacity-100",
+          "transition-opacity duration-200 delay-150",
+        ].join(" ")}
       >
-        {SERVICES.map((s) => (
-          <article
-            key={s.title}
-            className={[
-              "relative snap-start select-none",
-              "min-w-[320px] sm:min-w-[420px] lg:min-w-[520px]",
-              "rounded-3xl border border-foreground/10 bg-foreground/5",
-              "p-6 sm:p-8",
-              "transition",
-              "group",
-            ].join(" ")}
-          >
-            {/* верхний левый значок */}
-            <div className="text-foreground/80">{s.icon}</div>
+        <div className="text-background/80">{icon}</div>
+        <div className="mt-4 text-xs text-background/70">Услуга</div>
+        <h3 className="mt-2 text-lg sm:text-xl font-extrabold tracking-tight text-background">{title}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-background/80">{desc}</p>
 
-            {/* текст (как у тебя сейчас) */}
-            <h3 className="mt-6 text-2xl sm:text-3xl font-extrabold tracking-tight">
-              {s.title}
-            </h3>
-            <p className="mt-4 text-sm sm:text-base leading-relaxed text-foreground/75 max-w-[42ch]">
-              {s.desc}
-            </p>
-
-            {/* “акцент” как на видео: тёмная часть + дуга + стрелка */}
-            <div
-              className={[
-                "pointer-events-none absolute inset-0 overflow-hidden rounded-3xl",
-                "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100",
-                "transition-opacity duration-300",
-              ].join(" ")}
-            >
-              <div className="absolute inset-0 bg-foreground" />
-              {/* дуга/полукруг */}
-              <div className="absolute -right-[280px] -top-[160px] h-[520px] w-[520px] rounded-full bg-background" />
-              {/* стрелка */}
-              <div className="absolute right-6 top-6 text-background">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
-                  <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-            </div>
-
-            {/* дублируем заголовок/описание поверх акцента (чтобы читалось на тёмном) */}
-            <div className="pointer-events-none absolute inset-0 rounded-3xl p-6 sm:p-8 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
-              <div className="text-background/80">{s.icon}</div>
-              <h3 className="mt-6 text-2xl sm:text-3xl font-extrabold tracking-tight text-background">
-                {s.title}
-              </h3>
-              <p className="mt-4 text-sm sm:text-base leading-relaxed text-background/80 max-w-[42ch]">
-                {s.desc}
-              </p>
-            </div>
-          </article>
-        ))}
+        <div className="pointer-events-none absolute right-6 top-6 text-background opacity-90">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
+            <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
       </div>
-
-      <div className="text-xs text-foreground/55">
-        Подсказка: можно листать колесом/тачпадом или “тянуть” мышкой.
-      </div>
-    </div>
+    </article>
   );
 }
 
@@ -257,7 +164,8 @@ export default function HeroSection() {
         <div className="absolute -bottom-40 left-10 h-[420px] w-[420px] rounded-full bg-foreground/5 blur-3xl" />
       </div>
 
-      <Container>
+      {/* Сделал “контейнер” чуть шире примерно на ~2см (через max-w-7xl вместо 6xl) */}
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative py-14 sm:py-20">
           <div className="flex flex-col gap-6">
             <div className="flex flex-wrap gap-2">
@@ -286,11 +194,15 @@ export default function HeroSection() {
               </Button>
             </div>
 
-            {/* УСЛУГИ — форма как на фото + подвижность как на видео */}
-            <ServicesSlider />
+            {/* СЕТКА УСЛУГ: 4×2 на десктопе */}
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {SERVICES.map((s) => (
+                <CurtainCard key={s.title} title={s.title} desc={s.desc} icon={s.icon} />
+              ))}
+            </div>
           </div>
         </div>
-      </Container>
+      </div>
     </section>
   );
 }
