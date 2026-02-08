@@ -26,13 +26,20 @@ const styles: Record<Variant, string> = {
     ].join(" "),
   ghost:
     [
-      // сохраняем “лёгкость”, но добавляем рамку и инверсию при hover,
-      // чтобы “Позвонить” тоже соответствовал твоему правилу
       "border border-foreground/30",
       "hover:bg-foreground hover:text-background hover:border-foreground",
       "focus-visible:ring-foreground",
     ].join(" "),
 };
+
+function isExternalHref(href: string) {
+  return (
+    href.startsWith("http://") ||
+    href.startsWith("https://") ||
+    href.startsWith("tel:") ||
+    href.startsWith("mailto:")
+  );
+}
 
 export function Button({
   children,
@@ -52,6 +59,22 @@ export function Button({
   const cls = `${base} ${styles[variant]} ${className}`;
 
   if (href) {
+    // Внешние ссылки (Telegram, tel, mail) — через <a>
+    if (isExternalHref(href)) {
+      const isHttp = href.startsWith("http://") || href.startsWith("https://");
+      return (
+        <a
+          href={href}
+          className={cls}
+          target={isHttp ? "_blank" : undefined}
+          rel={isHttp ? "noreferrer" : undefined}
+        >
+          {children}
+        </a>
+      );
+    }
+
+    // Внутренние ссылки и якоря — через next/link
     return (
       <Link href={href} className={cls}>
         {children}
