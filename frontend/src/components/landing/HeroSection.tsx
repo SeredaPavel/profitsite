@@ -1,4 +1,5 @@
 // src/components/landing/HeroSection.tsx
+import type { ReactNode } from "react";
 import Badge from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
@@ -89,15 +90,7 @@ const SERVICES = [
   },
 ];
 
-function CurtainCard({
-  title,
-  desc,
-  icon,
-}: {
-  title: string;
-  desc: string;
-  icon: React.ReactNode;
-}) {
+function CurtainCard({ title, desc, icon }: { title: string; desc: string; icon: ReactNode }) {
   return (
     <article
       className={[
@@ -112,16 +105,9 @@ function CurtainCard({
         <div className="mt-4 text-xs text-foreground/60">Услуга</div>
         <h3 className="mt-2 text-lg sm:text-xl font-extrabold tracking-tight">{title}</h3>
         <p className="mt-3 text-sm leading-relaxed text-foreground/75">{desc}</p>
-
-        <div className="pointer-events-none absolute right-6 top-6 opacity-80 transition-opacity group-hover:opacity-0">
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
-            <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            <path d="M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </div>
       </div>
 
-      {/* ШТОРА: стартует из правого верхнего угла и ПОЛНОСТЬЮ перекрывает карточку */}
+      {/* ШТОРА: из правого верхнего угла, полностью перекрывает */}
       <div
         className={[
           "pointer-events-none absolute inset-0 z-20",
@@ -132,7 +118,7 @@ function CurtainCard({
         ].join(" ")}
       />
 
-      {/* HOVER-КОНТЕНТ (чтобы читалось на “шторе”) */}
+      {/* HOVER-КОНТЕНТ */}
       <div
         className={[
           "pointer-events-none absolute inset-0 z-30 p-6 sm:p-7",
@@ -145,7 +131,8 @@ function CurtainCard({
         <h3 className="mt-2 text-lg sm:text-xl font-extrabold tracking-tight text-background">{title}</h3>
         <p className="mt-3 text-sm leading-relaxed text-background/80">{desc}</p>
 
-        <div className="pointer-events-none absolute right-6 top-6 text-background opacity-90">
+        {/* стрелка только на открытой шторе */}
+        <div className="pointer-events-none absolute right-6 top-6 text-background opacity-0 transition-opacity duration-200 delay-150 group-hover:opacity-100">
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
             <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             <path d="M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -164,8 +151,8 @@ export default function HeroSection() {
         <div className="absolute -bottom-40 left-10 h-[420px] w-[420px] rounded-full bg-foreground/5 blur-3xl" />
       </div>
 
-      {/* Сделал “контейнер” чуть шире примерно на ~2см (через max-w-7xl вместо 6xl) */}
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* шире по горизонтали (≈ +2см), без влияния на высоту */}
+      <div className="mx-auto w-full max-w-[86rem] px-4 sm:px-6 lg:px-8">
         <div className="relative py-14 sm:py-20">
           <div className="flex flex-col gap-6">
             <div className="flex flex-wrap gap-2">
