@@ -148,7 +148,7 @@ function CurtainCard({ title, desc, icon }: { title: string; desc: string; icon:
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden border-b border-foreground/10">
+    <section id="services" className="relative overflow-hidden border-b border-foreground/10">
       <div className="pointer-events-none absolute inset-0 opacity-60">
         <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-foreground/10 blur-3xl" />
         <div className="absolute -bottom-40 left-10 h-[420px] w-[420px] rounded-full bg-foreground/5 blur-3xl" />
@@ -164,7 +164,7 @@ export default function HeroSection() {
             </div>
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl">
-              Разрабатываем сайты и развиваем сервисы, которые приносят результат бизнесу
+              Разрабатываем сайты и развиваем сервисы - принося результат бизнесу
             </h1>
 
             <p className="max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg">

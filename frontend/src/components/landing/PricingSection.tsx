@@ -113,7 +113,7 @@ function PricingCard({
 
 export default function PricingSection() {
   return (
-    <section className="border-b border-foreground/10">
+    <section id="pricing" className="border-b border-foreground/10">
       <Container>
         <div className="py-14 sm:py-16">
           <h2 className="text-2xl font-bold sm:text-3xl">Сколько это стоит</h2>
