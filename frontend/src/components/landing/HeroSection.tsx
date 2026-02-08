@@ -1,6 +1,7 @@
 // src/components/landing/HeroSection.tsx
 import type { ReactNode } from "react";
 import Badge from "@/components/ui/Badge";
+import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 
 const SERVICES = [
@@ -143,6 +144,8 @@ function CurtainCard({ title, desc, icon }: { title: string; desc: string; icon:
   );
 }
 
+// ... SERVICES, CurtainCard без изменений
+
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden border-b border-foreground/10">
@@ -151,8 +154,7 @@ export default function HeroSection() {
         <div className="absolute -bottom-40 left-10 h-[420px] w-[420px] rounded-full bg-foreground/5 blur-3xl" />
       </div>
 
-      {/* шире по горизонтали (≈ +2см), без влияния на высоту */}
-      <div className="mx-auto w-full max-w-[86rem] px-4 sm:px-6 lg:px-8">
+      <Container>
         <div className="relative py-14 sm:py-20">
           <div className="flex flex-col gap-6">
             <div className="flex flex-wrap gap-2">
@@ -181,7 +183,6 @@ export default function HeroSection() {
               </Button>
             </div>
 
-            {/* СЕТКА УСЛУГ: 4×2 на десктопе */}
             <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {SERVICES.map((s) => (
                 <CurtainCard key={s.title} title={s.title} desc={s.desc} icon={s.icon} />
@@ -189,7 +190,7 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
