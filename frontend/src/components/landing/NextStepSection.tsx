@@ -4,40 +4,19 @@
 import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
+import ConsultationModal from "@/components/landing/ConsultationModal";
 
 const TG_BOT_LINK = "https://t.me/ProfitSiteruBot";
 const PHONE = "+79999999999";
 
 export default function NextStepSection() {
-  const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
-  const [task, setTask] = useState("");
-  const [status, setStatus] = useState<"idle" | "ok" | "err" | "sending">("idle");
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("sending");
-
-    // Пока что без API: просто показываем успех.
-    // Следующим шагом подключим backend /api/lead -> Telegram.
-    await new Promise((r) => setTimeout(r, 500));
-
-    if (!name.trim() || !contact.trim()) {
-      setStatus("err");
-      return;
-    }
-
-    setStatus("ok");
-    setName("");
-    setContact("");
-    setTask("");
-  }
+  const [openConsult, setOpenConsult] = useState(false);
 
   return (
-    // Новый якорь для Header: "Контакты"
     <section id="contacts">
-      {/* Старый якорь (#next-step) сохраняем, чтобы не ломать CTA-кнопки */}
       <div id="next-step">
+        <ConsultationModal open={openConsult} onClose={() => setOpenConsult(false)} />
+
         <Container>
           <div className="py-14 sm:py-20">
             <div className="rounded-3xl border border-foreground/12 bg-foreground/3 p-6 sm:p-10">
@@ -47,63 +26,22 @@ export default function NextStepSection() {
               </p>
 
               <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <form onSubmit={onSubmit} className="rounded-2xl border border-foreground/12 bg-background p-6">
-                  <div className="text-sm font-semibold">Получить консультацию</div>
-
-                  <div className="mt-4 grid grid-cols-1 gap-3">
-                    <label className="grid gap-2">
-                      <span className="text-xs text-foreground/70">Имя</span>
-                      <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="h-11 rounded-xl border border-foreground/15 bg-background px-4 text-sm outline-none focus:border-foreground/35"
-                        placeholder="Как к вам обращаться?"
-                      />
-                    </label>
-
-                    <label className="grid gap-2">
-                      <span className="text-xs text-foreground/70">Контакт (телефон / Telegram)</span>
-                      <input
-                        value={contact}
-                        onChange={(e) => setContact(e.target.value)}
-                        className="h-11 rounded-xl border border-foreground/15 bg-background px-4 text-sm outline-none focus:border-foreground/35"
-                        placeholder="+7... или @username"
-                      />
-                    </label>
-
-                    <label className="grid gap-2">
-                      <span className="text-xs text-foreground/70">Задача (кратко)</span>
-                      <textarea
-                        value={task}
-                        onChange={(e) => setTask(e.target.value)}
-                        className="min-h-27.5 rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/35"
-                        placeholder="Например: лендинг под услугу, интеграция CRM, ускорение сайта…"
-                      />
-                    </label>
-
-                    <Button type="submit" variant="primary" className="w-full">
-                      {status === "sending" ? "Отправляем..." : "Отправить заявку"}
-                    </Button>
-
-                    {status === "ok" && (
-                      <div className="text-sm text-foreground/75">
-                        ✅ Заявка принята. Мы свяжемся с вами.
-                      </div>
-                    )}
-                    {status === "err" && (
-                      <div className="text-sm text-foreground/75">
-                        ⚠️ Укажите имя и контакт.
-                      </div>
-                    )}
-                  </div>
-                </form>
-
                 <div className="rounded-2xl border border-foreground/12 bg-background p-6">
-                  <div className="text-sm font-semibold">Альтернативный CTA</div>
+                  <div className="text-sm font-semibold">Связаться</div>
+
                   <div className="mt-4 grid gap-3">
-                    <Button href={TG_BOT_LINK} variant="outline" className="w-full">
-                      Обсудить проект (Telegram бот)
+                    <Button
+                      variant="primary"
+                      className="w-full"
+                      onClick={() => setOpenConsult(true)}
+                    >
+                      Получить консультацию
                     </Button>
+
+                    <Button href={TG_BOT_LINK} variant="outline" className="w-full">
+                      Обсудить проект
+                    </Button>
+
                     <Button href={`tel:${PHONE}`} variant="outline" className="w-full">
                       Позвонить
                     </Button>
@@ -116,6 +54,18 @@ export default function NextStepSection() {
                     <div className="text-xs text-foreground/60">
                       Телефон: {PHONE} • Telegram: @ProfitSiteruBot
                     </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-foreground/12 bg-background p-6">
+                  <div className="text-sm font-semibold">Что будет дальше</div>
+                  <div className="mt-3 text-sm text-foreground/70">
+                    Нажмите “Получить консультацию” — откроется форма заявки.
+                    Следующим шагом подключим реальную отправку в Telegram через backend (FastAPI).
+                  </div>
+
+                  <div className="mt-4 rounded-xl bg-foreground/5 p-4 text-sm text-foreground/75">
+                    Подготовьте: цель проекта, пример/референс, сроки и желаемые интеграции (CRM, аналитика, AI).
                   </div>
                 </div>
               </div>

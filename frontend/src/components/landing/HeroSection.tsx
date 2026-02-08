@@ -1,9 +1,15 @@
 // src/components/landing/HeroSection.tsx
+"use client";
+
 import type { ReactNode } from "react";
+import { useState } from "react";
 import Badge from "@/components/ui/Badge";
 import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import ConsultationModal from "@/components/landing/ConsultationModal";
 
+const TG_BOT_LINK = "https://t.me/ProfitSiteruBot";
+const PHONE = "+79999999999";
 const SERVICES = [
   {
     title: "Разработка сайтов",
@@ -144,11 +150,15 @@ function CurtainCard({ title, desc, icon }: { title: string; desc: string; icon:
   );
 }
 
-// ... SERVICES, CurtainCard без изменений
+// ... SERVICES и CurtainCard без изменений
 
 export default function HeroSection() {
+  const [openConsult, setOpenConsult] = useState(false);
+
   return (
     <section id="services" className="relative overflow-hidden border-b border-foreground/10">
+      <ConsultationModal open={openConsult} onClose={() => setOpenConsult(false)} />
+
       <div className="pointer-events-none absolute inset-0 opacity-60">
         <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-foreground/10 blur-3xl" />
         <div className="absolute -bottom-40 left-10 h-[420px] w-[420px] rounded-full bg-foreground/5 blur-3xl" />
@@ -172,12 +182,17 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button href="#next-step" variant="primary">
+              <Button
+                variant="primary"
+                onClick={() => setOpenConsult(true)}
+              >
                 Получить консультацию
               </Button>
-              <Button href="#next-step" variant="outline">
+
+              <Button href={TG_BOT_LINK} variant="outline">
                 Обсудить проект
               </Button>
+
               <Button href="tel:+79999999999" variant="ghost">
                 Позвонить
               </Button>
