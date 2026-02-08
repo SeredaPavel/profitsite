@@ -1,0 +1,58 @@
+C:.
+|   .gitignore
+|   docker-compose.yml
+|   structure.txt
+|   
++---.github
+|   \---workflows
+|           deploy.yml
+|           
++---backend
+|   |   Dockerfile
+|   |   requirements.txt
+|   |   
+|   \---app
+|           main.py
+|           
+\---frontend
+    |   Dockerfile
+    |   eslint.config.mjs
+    |   next-env.d.ts
+    |   next.config.ts
+    |   package-lock.json
+    |   package.json
+    |   postcss.config.mjs
+    |   README.md
+    |   tsconfig.json
+    |   
+
+    |               
+    +---public
+    |       file.svg
+    |       globe.svg
+    |       next.svg
+    |       vercel.svg
+    |       window.svg
+    |       
+    \---src
+        +---app
+        |       favicon.ico
+        |       globals.css
+        |       layout.tsx
+        |       page.tsx
+        |       
+        \---components
+            +---landing
+            |       AudienceSection.tsx
+            |       HeroSection.tsx
+            |       NextStepSection.tsx
+            |       PricingSection.tsx
+            |       ProofSection.tsx
+            |       ResultSection.tsx
+            |       WhyItWorksSection.tsx
+            |       
+            \---ui
+                    Badge.tsx
+                    Button.tsx
+                    Container.tsx
+                    
