@@ -1,8 +1,10 @@
 // src/components/landing/ConsultationModal.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+
+type Phase = "enter" | "exit";
 
 export default function ConsultationModal({
   open,
@@ -16,29 +18,42 @@ export default function ConsultationModal({
   const [task, setTask] = useState("");
   const [status, setStatus] = useState<"idle" | "ok" | "err" | "sending">("idle");
 
-  const panelRef = useRef<HTMLDivElement | null>(null);
+  // чтобы модалка оставалась в DOM на время exit-анимации
+  const [render, setRender] = useState(false);
+  const [phase, setPhase] = useState<Phase>("enter");
+
+  useEffect(() => {
+    if (open) {
+      setRender(true);
+      setPhase("enter");
+    } else if (render) {
+      setPhase("exit");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  function requestClose() {
+    setPhase("exit");
+  }
 
   useEffect(() => {
     if (!open) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") requestClose();
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  }, [open]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // По ТЗ: закрываем модалку при нажатии "Отправить заявку"
-    // (даже если поля пустые).
-    onClose();
+    // По ТЗ: закрываем модалку при клике "Отправить заявку"
+    requestClose();
 
     setStatus("sending");
-
-    // Пока что без API: просто имитируем отправку.
     await new Promise((r) => setTimeout(r, 500));
 
     if (!name.trim() || !contact.trim()) {
@@ -52,33 +67,51 @@ export default function ConsultationModal({
     setTask("");
   }
 
-  if (!open) return null;
+  if (!render) return null;
 
   return (
     <div className="fixed inset-0 z-[100]">
-      {/* overlay: клик закрывает */}
+      {/* overlay */}
       <div
-        className="absolute inset-0 bg-black/40"
-        onMouseDown={onClose}
-        onTouchStart={onClose}
+        className={[
+          "absolute inset-0 bg-black/50",
+          phase === "exit" ? "consult-overlay-out" : "consult-overlay-in",
+        ].join(" ")}
+        onMouseDown={requestClose}
+        onTouchStart={requestClose}
       />
 
       {/* panel */}
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div
-          ref={panelRef}
-          className="relative w-full max-w-xl rounded-3xl border border-foreground/12 bg-background p-6 shadow-2xl"
+          className={[
+            "relative w-full max-w-xl rounded-3xl border border-foreground/12 bg-background p-6 shadow-2xl",
+            phase === "exit" ? "consult-panel-out" : "consult-panel-in",
+          ].join(" ")}
+          onAnimationEnd={() => {
+            if (phase !== "exit") return;
+
+            // exit закончился → закрываем сверху и размонтируем
+            onClose();
+            setRender(false);
+            setPhase("enter");
+          }}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
         >
           {/* close */}
           <button
             aria-label="Закрыть"
-            onClick={onClose}
+            onClick={requestClose}
             className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-foreground/30 transition hover:bg-foreground hover:text-background"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
 
@@ -124,12 +157,12 @@ export default function ConsultationModal({
               {status === "sending" ? "Отправляем..." : "Отправить заявку"}
             </Button>
 
-            {/* Статусы остаются (на будущее), но модалка закрывается сразу по клику */}
             {status === "ok" && (
               <div className="text-sm text-foreground/75">
                 ✅ Заявка принята. Мы свяжемся с вами.
               </div>
             )}
+
             {status === "err" && (
               <div className="text-sm text-foreground/75">
                 ⚠️ Укажите имя и контакт.
