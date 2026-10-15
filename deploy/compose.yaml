@@ -1,0 +1,55 @@
+name: profitsite
+
+services:
+  profitsite-backend:
+    image: ghcr.io/seredapavel/profitsite/backend:${IMAGE_TAG:?Set IMAGE_TAG in .env}
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json, urllib.request; assert json.load(urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)).get('ok') is True"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - edge
+
+  profitsite-frontend:
+    image: ghcr.io/seredapavel/profitsite/frontend:${IMAGE_TAG:?Set IMAGE_TAG in .env}
+    restart: unless-stopped
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
+    depends_on:
+      profitsite-backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/', {signal: AbortSignal.timeout(3000)}).then(r => process.exit(r.status === 200 ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - edge
+
+networks:
+  edge:
+    external: true
+    name: hosting_profitsite_edge

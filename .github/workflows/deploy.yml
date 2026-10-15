@@ -1,9 +1,14 @@
-name: ProfitSite images
+name: Build and deploy ProfitSite
 
 on:
   push:
     branches: [main, infra/ghcr-hosting]
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Deploy main to the VPS after both image checks pass"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,9 +16,23 @@ permissions:
 
 concurrency:
   group: profitsite-images-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+  check_deploy_scripts:
+    name: Check deployment scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: bash -n deploy/deploy-profitsite.sh deploy/install-actions-key.sh
+      - name: Check deployment and rollback scenarios
+        run: sudo python3 deploy/tests/test_deploy.py
+
   build:
     name: Build and check ${{ matrix.service }}
     runs-on: ubuntu-latest
@@ -104,3 +123,45 @@ jobs:
         if: always()
         shell: bash
         run: docker rm -f profitsite-smoke 2>/dev/null || true
+
+  deploy:
+    name: Deploy ProfitSite
+    needs: [build, check_deploy_scripts]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.deploy))
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    concurrency:
+      group: profitsite-production
+      cancel-in-progress: false
+    env:
+      DEPLOY_HOST: ${{ secrets.PROFITSITE_VPS_HOST }}
+      DEPLOY_KEY: ${{ secrets.PROFITSITE_VPS_SSH_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.PROFITSITE_VPS_KNOWN_HOSTS }}
+    steps:
+      - name: Deploy through the restricted SSH key
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_KEY"
+          test -n "$DEPLOY_KNOWN_HOSTS"
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ ]]
+          task_ssh_dir=$(mktemp -d)
+          trap 'rm -rf -- "$task_ssh_dir"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$task_ssh_dir/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$task_ssh_dir/known_hosts"
+          chmod 600 "$task_ssh_dir/key" "$task_ssh_dir/known_hosts"
+          ssh -i "$task_ssh_dir/key" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$task_ssh_dir/known_hosts" \
+            -o ConnectTimeout=15 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=6 \
+            "root@$DEPLOY_HOST" "deploy $GITHUB_SHA"
