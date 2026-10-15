@@ -1,30 +1,39 @@
-# /.github/workflows/deploy.yml
-name: deploy
+name: ProfitSite images
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch: {}
-
-concurrency:
-  group: profitsite-deploy
-  cancel-in-progress: true
+    branches: [main, infra/ghcr-hosting]
+  workflow_dispatch:
 
 permissions:
   contents: read
   packages: write
 
-jobs:
-  build_and_deploy:
-    runs-on: ubuntu-latest
+concurrency:
+  group: profitsite-images-${{ github.ref }}
+  cancel-in-progress: true
 
+jobs:
+  build:
+    name: Build and check ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: backend
+            port: 8000
+            path: /health
+          - service: frontend
+            port: 3000
+            path: /
     env:
-      IMAGE_BASE: ghcr.io/seredapavel/profitsite
-      VPS_HOST: ${{ secrets.VPS_HOST }}
-      VPS_USER: ${{ secrets.VPS_USER }}
-      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-      VPS_PORT: ${{ secrets.VPS_PORT }}
-      VPS_PATH: ${{ secrets.VPS_PATH || '/opt/profitsite' }}
+      IMAGE: ghcr.io/seredapavel/profitsite/${{ matrix.service }}
+      IMAGE_TAG: ${{ github.sha }}
+      SERVICE: ${{ matrix.service }}
+      PORT: ${{ matrix.port }}
+      CHECK_PATH: ${{ matrix.path }}
 
     steps:
       - name: Checkout
@@ -33,98 +42,65 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to GHCR (runner)
+      - name: Build image for checks
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: ${{ env.IMAGE }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=profitsite-${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=profitsite-${{ matrix.service }}
+
+      - name: Check container HTTP response
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name profitsite-smoke \
+            -e HOSTNAME=0.0.0.0 \
+            -p "127.0.0.1:${PORT}:${PORT}" \
+            "${IMAGE}:${IMAGE_TAG}"
+
+          curl --fail --silent --show-error \
+            --retry 20 --retry-delay 3 --retry-all-errors \
+            --connect-timeout 3 --max-time 10 \
+            --output /tmp/profitsite-response \
+            "http://127.0.0.1:${PORT}${CHECK_PATH}"
+
+          if [ "$SERVICE" = backend ]; then
+            python3 -c 'import json; assert json.load(open("/tmp/profitsite-response")).get("ok") is True'
+          fi
+          test "$(docker inspect --format '{{.State.Running}}' profitsite-smoke)" = true
+
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push backend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_BASE }}/backend:latest
-            ${{ env.IMAGE_BASE }}/backend:${{ github.sha }}
-
-      - name: Build & push frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_BASE }}/frontend:latest
-            ${{ env.IMAGE_BASE }}/frontend:${{ github.sha }}
-
-      - name: Add server to known_hosts
+      - name: Publish checked image
+        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          set -euo pipefail
+          docker push "${IMAGE}:${IMAGE_TAG}"
 
-      - name: Deploy on VPS (pull/up)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ env.VPS_HOST }}
-          username: ${{ env.VPS_USER }}
-          key: ${{ env.VPS_SSH_KEY }}
-          port: ${{ env.VPS_PORT }}
-          envs: VPS_PATH
-          script: |
-            set -e
+      - name: Publish latest from main
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker tag "${IMAGE}:${IMAGE_TAG}" "${IMAGE}:latest"
+          docker push "${IMAGE}:latest"
 
-            echo "VPS_PATH=$VPS_PATH"
-            mkdir -p "$VPS_PATH"
-            cd "$VPS_PATH"
+      - name: Container logs on failure
+        if: failure()
+        shell: bash
+        run: docker logs --tail 100 profitsite-smoke 2>/dev/null || true
 
-            # Логин в GHCR на сервере (чтобы docker pull работал)
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-
-            cat > docker-compose.yml <<'EOF'
-            version: "3.9"
-            services:
-              profitsite-backend:
-                image: ghcr.io/seredapavel/profitsite/backend:latest
-                container_name: profitsite-backend
-                env_file:
-                  - .env
-                expose:
-                  - "8000"
-                networks:
-                  - edge
-
-              profitsite-frontend:
-                image: ghcr.io/seredapavel/profitsite/frontend:latest
-                container_name: profitsite-frontend
-                environment:
-                  - NEXT_PUBLIC_API_BASE=/api
-                expose:
-                  - "3000"
-                depends_on:
-                  - profitsite-backend
-                networks:
-                  - edge
-
-            networks:
-              edge:
-                external: true
-            EOF
-
-            cat > .env <<'EOF'
-            TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}
-            TG_CHAT_ID=${{ secrets.TG_CHAT_ID }}
-            EOF
-
-            # Не ругаемся, если сеть уже есть
-            docker network inspect edge >/dev/null 2>&1 || docker network create edge
-
-            docker pull ghcr.io/seredapavel/profitsite/backend:latest
-            docker pull ghcr.io/seredapavel/profitsite/frontend:latest
-
-            docker compose up -d
-
-            echo "---- ps ----"
-            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      - name: Clean up check container
+        if: always()
+        shell: bash
+        run: docker rm -f profitsite-smoke 2>/dev/null || true
